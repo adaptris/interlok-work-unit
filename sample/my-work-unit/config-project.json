@@ -1,0 +1,13 @@
+{
+  "name" : "work-unit-wrapper",
+  "configFileName" : "work-unit.xml",
+  "variableSets" : {
+    "default" : { }
+  },
+  "variableXpaths" : { },
+  "uidInXincludeCompntListFileName" : false,
+  "xincludeXpaths" : { },
+  "additionalFiles" : { },
+  "optionalComponentsInUse" : [ ],
+  "structured" : true
+}

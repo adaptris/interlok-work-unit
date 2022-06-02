@@ -1,0 +1,5 @@
+component.name=My Work Unit
+component.description=My work unit that does something
+component.type=work-unit
+groupId=com.adaptris
+artifactId=my-work-unit

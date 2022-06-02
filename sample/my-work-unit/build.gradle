@@ -1,0 +1,98 @@
+plugins {
+  id "java-library"
+  id "application"
+  id "maven-publish"
+}
+
+ext {
+  releaseVersion = project.findProperty("releaseVersion") ?: "4.5-SNAPSHOT"
+  interlokVersion = project.findProperty("releaseVersion") ?: "4.5-SNAPSHOT"
+  nexusBaseUrl = project.findProperty("nexusBaseUrl") ?: "https://nexus.adaptris.net/nexus"
+  mavenPublishUrl = project.findProperty("mavenPublishUrl") ?: nexusBaseUrl + "/content/repositories/snapshots"
+  repoUsername = project.findProperty("repoUsername") ?: "set in gradle.properties"
+  repoPassword = project.findProperty("repoPassword") ?: "set in gradle.properties"
+
+  componentName = "My Work Unit"
+  componentDesc = "My work unit that does something"
+  organizationName = "Adaptris Ltd"
+  organizationUrl = "http://interlok.adaptris.net"
+  
+  interlokSourceConfig = "src/main/interlok/config"
+}
+
+repositories {
+  mavenCentral()
+  maven { url "$nexusBaseUrl/content/groups/public" }
+  maven { url "$nexusBaseUrl/content/groups/interlok" }
+}
+
+dependencies {
+  implementation ("com.adaptris:interlok-json:$interlokVersion") { changing=true }
+  implementation ("com.adaptris:interlok-csv:$interlokVersion") { changing=true }
+  implementation ("com.adaptris:interlok-csv-json:$interlokVersion") { changing=true }
+}
+
+group   = "com.adaptris"
+version = releaseVersion
+def versionDir = "$buildDir/version"
+startScripts.enabled = false
+
+jar {
+  manifest {
+    attributes("Built-By": System.getProperty("user.name"),
+               "Build-Jdk": System.getProperty("java.version"),
+               "Implementation-Title": componentName,
+               "Implementation-Version": project.version,
+               "Implementation-Vendor-Id": project.group,
+               "Implementation-Vendor": organizationName)
+  }
+}
+
+sourceSets {
+  main {
+    output.dir(versionDir, builtBy: "generateVersion")
+    resources {
+      srcDirs interlokSourceConfig
+    }
+  }
+}
+// Generate the META-INF/adaptris-version file
+task generateVersion {
+  doLast {
+    def versionFile = new File(new File(versionDir, "META-INF"), "adaptris-version")
+    versionFile.getParentFile().mkdirs()
+    ant.propertyfile(file: versionFile) {
+      entry(key: "component.name", value: componentName)
+      entry(key: "component.description", value: componentDesc)
+      entry(key: "component.type", value: "work-unit")
+      entry(key: "groupId", value: project.group)
+      entry(key: "artifactId", value: project.name)
+    }
+  }
+}
+
+publishing {
+  publications {
+    mavenJava(MavenPublication) {
+      artifact jar
+      pom.withXml {
+        asNode().appendNode("name", componentName)
+        asNode().appendNode("description", componentDesc)
+        def properties = asNode().appendNode("properties")
+        properties.appendNode("target", "4.0.0+")
+        properties.appendNode("license", "false")
+        properties.appendNode("readme", "https://raw.githubusercontent.com/adaptris-labs/interlok-work-units/develop/README.md")
+        properties.appendNode("repository", "https://github.com/adaptris-labs/interlok-work-units")
+      }
+    }
+  }
+  repositories {
+    maven {
+      credentials {
+        username repoUsername
+        password repoPassword
+      }
+      url mavenPublishUrl
+    }
+  }
+}

@@ -1,0 +1,21 @@
+<service-list>
+  <unique-id>pedantic-minsky</unique-id>
+  <services>
+    <log-message-service>
+      <unique-id>log-message-service</unique-id>
+      <log-level>DEBUG</log-level>
+    </log-message-service>
+    <add-metadata-service>
+      <unique-id>add-metadata-service</unique-id>
+      <metadata-element>
+        <key>key1</key>
+        <value>value1</value>
+      </metadata-element>
+    </add-metadata-service>
+    <xml-transform-service>
+        <unique-id>transform-service</unique-id>
+        <url>workunit:my-work-unit-4.5-SNAPSHOT!/simple-transform.xsl</url>
+        <allow-override>true</allow-override>
+    </xml-transform-service>
+  </services>
+</service-list>

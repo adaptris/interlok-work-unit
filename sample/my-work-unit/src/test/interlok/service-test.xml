@@ -1,0 +1,39 @@
+<service-test>
+  <unique-id>romantic-sinoussi</unique-id>
+  <test-client class="local-jmx-test-client"/>
+  <source class="default-config-file-source">
+    <file>file:///${service.tester.working.directory}/src/main/interlok/config/work-unit.xml</file>
+  </source>
+  <helpers/>
+  <test-list>
+    <unique-id>stupefied-knuth</unique-id>
+    <test>
+      <unique-id>transform</unique-id>
+      <test-case>
+        <unique-id>assert-metadata-equals</unique-id>
+        <input-message-provider>
+          <metadata-provider class="empty-metadata-provider"/>
+          <payload-provider class="empty-payload-provider"/>
+        </input-message-provider>
+        <assertions>
+          <assert-metadata-equals>
+            <metadata>
+              <key-value-pair>
+                <key>key1</key>
+                <value>value1</value>
+              </key-value-pair>
+            </metadata>
+          </assert-metadata-equals>
+        </assertions>
+      </test-case>
+      <service-to-test>
+        <source class="main-source"/>
+        <preprocessors>
+          <service-unique-id-preprocessor>
+            <service>add-metadata-service</service>
+          </service-unique-id-preprocessor>
+        </preprocessors>
+      </service-to-test>
+    </test>
+  </test-list>
+</service-test>

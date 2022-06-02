@@ -1,0 +1,14 @@
+<service-collection class="service-list">
+  <services>
+    <service class="log-message-service">
+      <unique-id>log-message-service</unique-id>
+      <log-level>DEBUG</log-level>
+    </service>
+    <add-metadata-service>
+      <metadata-element>
+        <key>key1</key>
+        <value>value1</value>
+      </metadata-element>
+    </add-metadata-service>
+  </services>
+</service-collection>
