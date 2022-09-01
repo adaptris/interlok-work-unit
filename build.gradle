@@ -143,6 +143,7 @@ configurations.all {
 dependencies {
   api ("com.adaptris:interlok-core:$interlokCoreVersion") { changing= true}
   api ("com.adaptris:interlok-common:$interlokCoreVersion") { changing= true}
+  api ("com.adaptris:interlok-varsub:$interlokCoreVersion") { changing= true}
 
   implementation ("org.slf4j:slf4j-api:$slf4jVersion")
 

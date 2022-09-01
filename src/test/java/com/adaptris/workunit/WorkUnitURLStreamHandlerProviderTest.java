@@ -1,5 +1,6 @@
 package com.adaptris.workunit;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
@@ -33,6 +34,13 @@ public class WorkUnitURLStreamHandlerProviderTest {
     InputStream openStream = new URL("workunit:my-work-unit!/work-unit.xml").openStream();
 
     assertNotNull(openStream);
+  }
+
+  @Test
+  public void url() throws Exception {
+    URL url = WorkUnitURLStreamHandlerProvider.url("my-work-unit", "work-unit.xml");
+
+    assertEquals("workunit:my-work-unit!/work-unit.xml", url.toString());
   }
 
 }

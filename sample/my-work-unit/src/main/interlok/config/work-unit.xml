@@ -9,7 +9,7 @@
       <unique-id>add-metadata-service</unique-id>
       <metadata-element>
         <key>key1</key>
-        <value>value1</value>
+        <value>${value1}</value>
       </metadata-element>
     </add-metadata-service>
     <xml-transform-service>
