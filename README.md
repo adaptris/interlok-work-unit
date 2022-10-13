@@ -71,6 +71,38 @@ If you have a service-list file packed in that my-work-unit.jar jar file named _
 </work-unit-service>
 ```
 
+### Variables Substitutions ###
+
+A work-unit jar file can have variables.properties along with the work-unit.xml files that can be used to replace tokens in the config.
+To use these variable properties, you will have to use `work-unit-variable-set`
+
+```xml
+<work-unit-service>
+...
+  <work-unit-variable-set>
+    <name>variables</name>
+  </work-unit-variable-set>
+...
+</work-unit-service>
+```
+
+The other way to do variables substitutions is to provide key value pairs in the work unit service like:
+
+```xml
+<work-unit-service>
+...
+  <key-value-pair-variable-set>
+    <variables>
+      <key-value-pair>
+        <key>value1</key>
+        <value>Key Value Pair</value>
+      </key-value-pair>
+    </variables>
+  </key-value-pair-variable-set>
+...
+</work-unit-service>
+```
+
 ### Dynamic Execution ###
 
 Package your work-unit as shown above. The service you'll choose is the __dynamic-service-executor (with url)__. 
