@@ -1,10 +1,16 @@
 package com.adaptris.workunit.services;
 
 import java.io.InputStream;
-import java.net.URL;
+import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Properties;
 
+import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import com.adaptris.annotation.AdapterComponent;
@@ -20,9 +26,13 @@ import com.adaptris.core.DefaultMarshaller;
 import com.adaptris.core.Service;
 import com.adaptris.core.ServiceException;
 import com.adaptris.core.ServiceImp;
+import com.adaptris.core.management.BootstrapProperties;
 import com.adaptris.core.util.ExceptionHelper;
 import com.adaptris.core.util.LifecycleHelper;
+import com.adaptris.core.varsub.WorkUnitVarSubPreProcessor;
 import com.adaptris.workunit.ChainURLStreamHandlerProvider;
+import com.adaptris.workunit.WorkUnitURLStreamHandlerProvider;
+import com.adaptris.workunit.varsub.VariableSet;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
 import lombok.AccessLevel;
@@ -36,11 +46,8 @@ import lombok.Setter;
 @DisplayOrder(order = {"workUnitName"})
 public class WorkUnitService extends ServiceImp {
 
-  private static final String WORK_UNIT_URL_PREFIX = "workunit:";
-
   private static final String XML_EXTENSION = ".xml";
-  private static final String DEFAULY_XML_NAME = "work-unit";
-  private static final String SEPARATOR = "!/";
+  private static final String DEFAULT_XML_NAME = "work-unit";
 
   static {
     ChainURLStreamHandlerProvider.init();
@@ -66,23 +73,48 @@ public class WorkUnitService extends ServiceImp {
    * @return String xmlConfigName
    */
   @AdvancedConfig
-  @InputFieldDefault(DEFAULY_XML_NAME)
+  @InputFieldDefault(DEFAULT_XML_NAME)
   @Getter
   @Setter
   private String xmlConfigName;
 
+  @Valid
+  @NotNull
+  @Getter
+  @Setter
+  @NonNull
+  private List<VariableSet> variableSets;
+
   @Getter(value = AccessLevel.PROTECTED)
   @Setter(value = AccessLevel.PROTECTED)
   private Service proxiedService;
+
+  public WorkUnitService() {
+    variableSets = new ArrayList<>();
+  }
 
   @Override
   public void doService(AdaptrisMessage msg) throws ServiceException {
     getProxiedService().doService(msg);
   }
 
-  private Service deserializeService(InputStream inputStream) throws CoreException {
+  private Service deserializeService(InputStream inputStream) throws Exception {
     AdaptrisMarshaller marshaller = DefaultMarshaller.getDefaultMarshaller();
-    return (Service) marshaller.unmarshal(inputStream);
+    String xml = varSub(IOUtils.toString(inputStream, Charset.defaultCharset()));
+    return (Service) marshaller.unmarshal(xml);
+  }
+
+  private String varSub(String xml) throws CoreException {
+    BootstrapProperties bootstrapProperties = new BootstrapProperties(new Properties());
+    return new WorkUnitVarSubPreProcessor(bootstrapProperties).process(xml, loadSubstitutions());
+  }
+
+  private Properties loadSubstitutions() throws CoreException {
+    Properties properties = new Properties();
+    for (VariableSet variableSet : variableSets) {
+      properties.putAll(variableSet.variables(getWorkUnitName()));
+    }
+    return properties;
   }
 
   @Override
@@ -90,17 +122,17 @@ public class WorkUnitService extends ServiceImp {
     try {
       setProxiedService(
           deserializeService(
-              new URL(WORK_UNIT_URL_PREFIX + getWorkUnitName() + SEPARATOR + xmlConfigName() + XML_EXTENSION).openStream()
+              WorkUnitURLStreamHandlerProvider.url(workUnitName, xmlConfigName() + XML_EXTENSION).openStream()
               )
           );
       LifecycleHelper.prepare(getProxiedService());
-    } catch (Exception e) {
-      throw ExceptionHelper.wrapCoreException(e);
+    } catch (Exception expt) {
+      throw ExceptionHelper.wrapCoreException(expt);
     }
   }
 
   private String xmlConfigName() {
-    return StringUtils.defaultIfBlank(DEFAULY_XML_NAME, getXmlConfigName());
+    return StringUtils.defaultIfBlank(DEFAULT_XML_NAME, getXmlConfigName());
   }
 
   @Override
