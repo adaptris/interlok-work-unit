@@ -4,11 +4,11 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Objects;
 import java.util.Properties;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.stream.Stream;
 
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.io.FilenameUtils;
 
 import com.adaptris.core.util.PropertyHelper;
 
@@ -23,6 +23,11 @@ public class WorkUnitDetector {
     return Collections.list(WorkUnitDetector.class.getClassLoader().getResources(resourceName));
   }
 
+  private static Stream<URL> listWorkUnitsUrl() throws IOException {
+    // Maybe we could cache that
+    return listUrls(ADAPTRIS_VERSION).stream().filter(url -> isWorkUnit(url));
+  }
+
   /**
    * List all the work unit names in the classpath (jars with a META-INF/adaptris-version file containing component.type=work-unit)
    *
@@ -30,26 +35,41 @@ public class WorkUnitDetector {
    * @throws IOException
    */
   public static String[] list() throws IOException {
-    return listUrls(ADAPTRIS_VERSION).stream().filter(url -> isWorkUnit(url)).map(url -> jarName(url.toString())).toArray(String[]::new);
+    return listWorkUnitsUrl().map(url -> WorkUnitUrlUtils.jarName(url.toString())).toArray(String[]::new);
   }
 
-  private static final Pattern UNKONWN_ARTIFACT_PATTERN = Pattern.compile("jar:file:.*/(.*)\\.jar!/.*");
-
-  // jar:file:/path/to/my-work-unit.jar!/META-INF/adaptris-version
-  // into just my-work-unit
-  public static String jarName(String url) {
-    Matcher matcher = UNKONWN_ARTIFACT_PATTERN.matcher(url);
-    if (matcher.matches()) {
-      return matcher.group(1);
-    }
-    return url;
+  /**
+   * Return the jar URL of the work unit META-INF/adaptris-version file for the given jarName
+   *
+   * @param jarName
+   * @return jar META-INF/adaptris-version URL
+   * @throws IOException
+   */
+  public static URL findWorkUnitAdaptrisVersionUrl(String jarName) throws IOException {
+    return listWorkUnitsUrl().filter(u -> WorkUnitUrlUtils.isCorrectJar(u, jarName)).findFirst().get();
   }
 
-  public static boolean isCorrectJar(URL url, String jarName) {
-    return StringUtils.isBlank(jarName) || jarName(url.toString()).equals(jarName);
+  /**
+   * Return the jar URL of the work unit fileName file for the given jarName
+   *
+   * @param jarName
+   * @param fileName
+   * @return jar fileName URL
+   * @throws IOException
+   */
+  public static URL findWorkUnitFile(String jarName, String fileName) throws IOException {
+    String normalizeFileName = FilenameUtils.normalize(fileName);
+    Objects.requireNonNull(normalizeFileName, fileName + " cannot be null and must be a normalised path, e.g. not starting with ..");
+    return new URL(WorkUnitDetector.findWorkUnitAdaptrisVersionUrl(jarName).toString().replace(ADAPTRIS_VERSION, normalizeFileName));
   }
 
-  public static boolean isWorkUnit(URL url) {
+  /**
+   * Check if the jar of the given URL is a work unit. Meaning it has a property component.type=work-unit
+   *
+   * @param url
+   * @return true if this is a work unit
+   */
+  private static boolean isWorkUnit(URL url) {
     Properties properties = PropertyHelper.loadQuietly(url);
     return properties.getOrDefault("component.type", "").equals("work-unit");
   }

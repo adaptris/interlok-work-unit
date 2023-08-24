@@ -1,42 +1,40 @@
 package com.adaptris.workunit.util;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 
 import java.net.URL;
+import java.util.Collection;
+import java.util.NoSuchElementException;
 
 import org.junit.Test;
 
 public class WorkUnitDetectorTest {
 
   @Test
-  public void testList() throws Exception {
+  public void testListVars() throws Exception {
     String[] workUnits = WorkUnitDetector.list();
-    assertTrue(workUnits.length > 0);
+    assertEquals(3, workUnits.length);
   }
 
   @Test
-  public void testJarName() throws Exception {
-    String url = "jar:file:/path/to/my-work-unit.jar!/META-INF/work-unit";
-    assertEquals("my-work-unit", WorkUnitDetector.jarName(url));
-    String url2 = "/META-INF/work-unit";
-    assertEquals("/META-INF/work-unit", WorkUnitDetector.jarName(url2));
+  public void testListUrls() throws Exception {
+    Collection<URL> listUrls = WorkUnitDetector.listUrls("META-INF/adaptris-version");
+    assertTrue(listUrls.size() > 0);
   }
 
   @Test
-  public void testIsCorrectJarTrue() throws Exception {
-    assertTrue(WorkUnitDetector.isCorrectJar(new URL("jar:file:/path/to/my-work-unit.jar!/META-INF/work-unit"), "my-work-unit"));
+  public void testFindWorkUnitAdaptrisVersionUrl() throws Exception {
+    URL jarUrl = WorkUnitDetector.findWorkUnitAdaptrisVersionUrl("my-work-unit");
+
+    assertTrue(jarUrl.toString().startsWith("jar:file:"));
+    assertTrue(jarUrl.toString().endsWith("my-work-unit.jar!/META-INF/adaptris-version"));
   }
 
   @Test
-  public void testIsCorrectJarFalse() throws Exception {
-    assertFalse(WorkUnitDetector.isCorrectJar(new URL("jar:file:/path/to/my-work-unit.jar!/META-INF/work-unit"), "different-jar"));
-  }
-
-  @Test
-  public void testIsCorrectJarNullName() throws Exception {
-    assertTrue(WorkUnitDetector.isCorrectJar(new URL("jar:file:/path/to/my-work-unit.jar!/META-INF/work-unit"), null));
+  public void testFindWorkUnitAdaptrisVersionUrlFails() throws Exception {
+    assertThrows(NoSuchElementException.class, () -> WorkUnitDetector.findWorkUnitAdaptrisVersionUrl("dummy-work-unit"));
   }
 
 }

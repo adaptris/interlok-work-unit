@@ -12,7 +12,7 @@ import com.adaptris.util.KeyValuePairSet;
 public class KeyValuePairVariableSetTest {
 
   @Test
-  public void variables() {
+  public void testVariables() {
 
     KeyValuePairVariableSet keyValuePairVariableSet = new KeyValuePairVariableSet();
 
