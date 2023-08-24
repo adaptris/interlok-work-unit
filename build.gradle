@@ -159,6 +159,7 @@ dependencies {
 
   // Import the work unit jar in the resources dir to do some testing  
   testImplementation files('src/test/resources/my-work-unit.jar')
+  testImplementation files('src/test/resources/my-work-unit-lowercase-readme.jar')
 
   javadoc("com.adaptris:interlok-core-apt:$interlokCoreVersion") { changing= true}
   offlineJavadocPackages ("com.adaptris:interlok-core:$interlokCoreVersion:javadoc@jar") { changing= true}
