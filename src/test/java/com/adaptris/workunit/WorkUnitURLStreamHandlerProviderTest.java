@@ -1,46 +1,33 @@
 package com.adaptris.workunit;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertThrows;
 
 import java.io.InputStream;
+import java.net.MalformedURLException;
 import java.net.URL;
 
 import org.junit.Test;
 
+import com.adaptris.workunit.util.WorkUnitDetector;
+import com.adaptris.workunit.util.WorkUnitRegistry;
+import com.adaptris.workunit.util.WorkUnitUrlUtils;
+
 public class WorkUnitURLStreamHandlerProviderTest {
 
   @Test
-  public void convertUrl() throws Exception {
-    URL resultUrl = new WorkUnitURLStreamHandlerProvider().convertUrl(new URL("workunit:work-unit.xml"));
+  public void testCreateURLStreamHandler() throws Exception {
+    URL workUnitUrl = WorkUnitDetector.findWorkUnitAdaptrisVersionUrl("my-work-unit");
+    WorkUnitRegistry.getInstance().register("my-work-unit", WorkUnitUrlUtils.stripJarUrlFilePath(workUnitUrl));
 
-    System.out.println(resultUrl);
-    assertTrue(resultUrl.getPath().endsWith("work-unit.xml"));
-    assertTrue(resultUrl.getProtocol().equals("file"));
-  }
-
-  @Test
-  public void convertUrlInJar() throws Exception {
-    URL resultUrl = new WorkUnitURLStreamHandlerProvider().convertUrl(new URL("workunit:my-work-unit!/work-unit.xml"));
-
-    System.out.println(resultUrl);
-    assertTrue(resultUrl.getPath().endsWith("work-unit.xml"));
-    assertTrue(resultUrl.getProtocol().equals("jar"));
-  }
-
-  @Test
-  public void createURLStreamHandler() throws Exception {
     InputStream openStream = new URL("workunit:my-work-unit!/work-unit.xml").openStream();
 
     assertNotNull(openStream);
   }
 
   @Test
-  public void url() throws Exception {
-    URL url = WorkUnitURLStreamHandlerProvider.url("my-work-unit", "work-unit.xml");
-
-    assertEquals("workunit:my-work-unit!/work-unit.xml", url.toString());
+  public void testCreateURLStreamHandlerNotWorkUnit() throws Exception {
+    assertThrows(MalformedURLException.class, () -> new URL("not-workunit:my-work-unit!/work-unit.xml").openStream());
   }
 
 }
