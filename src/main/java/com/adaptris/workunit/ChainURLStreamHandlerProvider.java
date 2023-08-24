@@ -7,6 +7,9 @@ import java.util.ServiceLoader;
 
 import lombok.extern.slf4j.Slf4j;
 
+/**
+ * Load all the Service instance of URLStreamHandlerProvider
+ */
 @Slf4j
 public class ChainURLStreamHandlerProvider extends URLStreamHandlerProvider {
 
