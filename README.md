@@ -134,7 +134,7 @@ component.name, component.type, groupId and artifactId are mandatory.
 
 **The best way to build your work unit jar is to use gradle and have the work-unit.xml and the variables.properties in an Interlok type project.**
 
-You can follow the sample project [my-work-unit](/interlok-work-unit/sample/my-work-unit)
+You can follow the sample project [my-work-unit](sample/my-work-unit)
 
 With a command line prompt run: `gradle clean build`
 
@@ -145,5 +145,5 @@ The artifactId is the project directory name but can also be customised in the *
 
 ### Documenting a Work Unit ###
 
-If you use the example build.gradle file from [my-work-unit](/interlok-work-unit/sample/my-work-unit) to build your work unit, it will package the README.md file at the root of the work unit project. The content of the README.md file will be available in the Interlok UI when adding a WorkUnitService to explain what the work unit is doing.
+If you use the example build.gradle file from [my-work-unit](sample/my-work-unit) to build your work unit, it will package the README.md file at the root of the work unit project. The content of the README.md file will be available in the Interlok UI when adding a WorkUnitService to explain what the work unit is doing.
 
