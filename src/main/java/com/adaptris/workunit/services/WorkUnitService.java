@@ -133,7 +133,7 @@ public class WorkUnitService extends ServiceImp {
       workUnitRegistry.register(getWorkUnitId(workUnitAdaptrisVersionUrl),
           WorkUnitUrlUtils.stripJarUrlFilePath(workUnitAdaptrisVersionUrl));
 
-      setProxiedService(deserializeService(WorkUnitUrlUtils.workUnitUrl(workUnitName, xmlConfigName() + XML_EXTENSION).openStream()));
+      setProxiedService(deserializeService(WorkUnitDetector.findWorkUnitFile(workUnitName, xmlConfigName() + XML_EXTENSION).openStream()));
       LifecycleHelper.prepare(getProxiedService());
     } catch (Exception expt) {
       throw ExceptionHelper.wrapCoreException(expt);

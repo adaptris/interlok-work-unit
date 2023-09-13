@@ -12,7 +12,7 @@ import com.adaptris.annotation.ComponentProfile;
 import com.adaptris.annotation.InputFieldHint;
 import com.adaptris.core.CoreException;
 import com.adaptris.core.util.ExceptionHelper;
-import com.adaptris.workunit.util.WorkUnitUrlUtils;
+import com.adaptris.workunit.util.WorkUnitDetector;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
 import lombok.Getter;
@@ -40,7 +40,7 @@ public class WorkUnitVariableSet implements VariableSet {
   @Override
   public Properties variables(String workUnitName) throws CoreException {
     try {
-      InputStream inputStream = WorkUnitUrlUtils.toJarUrl(workUnitName, propertiesFileName()).openStream();
+      InputStream inputStream = WorkUnitDetector.findWorkUnitFile(workUnitName, propertiesFileName()).openStream();
       Properties properties = new Properties();
       properties.load(inputStream);
       return properties;

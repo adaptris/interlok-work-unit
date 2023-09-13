@@ -32,11 +32,11 @@ public class WorkUnitUrlUtils {
   public static URL toJarUrl(URL url) throws IOException {
     String[] split = url.getPath().split(SEPARATOR);
 
-    final String jarName = split.length > 1 ? split[0] : null;
-    Args.notBlank(jarName, "work-unit-name in workunit:work-unit-name!/file url");
-    final String path = url.getPath().replaceFirst(StringUtils.trimToEmpty(jarName) + SEPARATOR, "");
+    final String workUnitName = split.length > 1 ? split[0] : null;
+    Args.notBlank(workUnitName, "work-unit-name in workunit:work-unit-name!/file url");
+    final String path = url.getPath().replaceFirst(StringUtils.trimToEmpty(workUnitName) + SEPARATOR, "");
 
-    return getFromRegistry(jarName, path);
+    return getFromRegistry(workUnitName, path);
   }
 
   /**
