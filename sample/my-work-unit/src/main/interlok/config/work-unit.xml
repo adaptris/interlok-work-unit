@@ -11,11 +11,20 @@
         <key>key1</key>
         <value>${value1}</value>
       </metadata-element>
+      <metadata-element>
+        <key>key2</key>
+        <value>${value2}</value>
+      </metadata-element>
     </add-metadata-service>
     <xml-transform-service>
-        <unique-id>transform-service</unique-id>
-        <url>workunit:my-work-unit-4.5-SNAPSHOT!/simple-transform.xsl</url>
-        <allow-override>true</allow-override>
+      <unique-id>transform-service</unique-id>
+      <url>workunit:my-work-unit!/simple-transform.xsl</url>
+      <metadata-key>transformurl</metadata-key>
+      <allow-override>true</allow-override>
+      <xml-transformer-factory class="xslt-transformer-factory">
+        <transformer-factory-attributes/>
+        <transformer-factory-features/>
+      </xml-transformer-factory>
     </xml-transform-service>
   </services>
 </service-list>
