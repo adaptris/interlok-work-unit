@@ -2,15 +2,22 @@
 
 ## What's this? ##
 
-A work unit example ot use within your Interlok configurations.
-It contains a service-list. That is to say you may have a complex and/or often used set of services that you find yourself copying into multiple installations of Interlok and you now want to make that list of services more modular.
+A work unit example to use within your Interlok configurations.
+It contains a service-list that log the message, add two metadata and does an XML transform, nothing complicated.
 
-The work unit allows you to black box that process making it easier for the next person to re-use your process (set of services).
+The message expected for the transform is like:
+
+```xml
+<xml world="world">
+  <payload>Hello </payload>
+</xml>
+
+```
 
 ## Building me ##
 
-You can use gradle to un `gradle clean assemble` to build the work unit jar file.
-A work unit requires to have an xml file (work-unit.xml by default) and a **META-INF/adaptris-version** file that contains at least: `component.type=work-unit`.
+Use gradle to run `gradle clean build` to build the work unit jar file.
+A work unit requires to have an xml file (work-unit.xml by default) and a **META-INF/adaptris-version** file that contains at least: `component.type=work-unit` and `artifactId=my-work-unit` where my-work-unit is the id of the work unit.
 
 ### Using me ###
 
