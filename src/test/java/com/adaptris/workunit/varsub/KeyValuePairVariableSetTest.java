@@ -1,18 +1,18 @@
 package com.adaptris.workunit.varsub;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.Collections;
 import java.util.Properties;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import com.adaptris.util.KeyValuePairSet;
 
 public class KeyValuePairVariableSetTest {
 
   @Test
-  public void variables() {
+  public void testVariables() {
 
     KeyValuePairVariableSet keyValuePairVariableSet = new KeyValuePairVariableSet();
 

@@ -1,6 +1,7 @@
 package com.adaptris.workunit.services;
 
 import java.io.InputStream;
+import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
@@ -29,9 +30,12 @@ import com.adaptris.core.ServiceImp;
 import com.adaptris.core.management.BootstrapProperties;
 import com.adaptris.core.util.ExceptionHelper;
 import com.adaptris.core.util.LifecycleHelper;
+import com.adaptris.core.util.PropertyHelper;
 import com.adaptris.core.varsub.WorkUnitVarSubPreProcessor;
 import com.adaptris.workunit.ChainURLStreamHandlerProvider;
-import com.adaptris.workunit.WorkUnitURLStreamHandlerProvider;
+import com.adaptris.workunit.util.WorkUnitDetector;
+import com.adaptris.workunit.util.WorkUnitRegistry;
+import com.adaptris.workunit.util.WorkUnitUrlUtils;
 import com.adaptris.workunit.varsub.VariableSet;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
@@ -43,11 +47,13 @@ import lombok.Setter;
 @XStreamAlias("work-unit-service")
 @AdapterComponent
 @ComponentProfile(summary = "Execute the named work unit.", tag = "service,work-unit")
-@DisplayOrder(order = {"workUnitName"})
+@DisplayOrder(order = { "workUnitName" })
 public class WorkUnitService extends ServiceImp {
 
   private static final String XML_EXTENSION = ".xml";
   private static final String DEFAULT_XML_NAME = "work-unit";
+
+  private final transient WorkUnitRegistry workUnitRegistry;
 
   static {
     ChainURLStreamHandlerProvider.init();
@@ -90,6 +96,7 @@ public class WorkUnitService extends ServiceImp {
   private Service proxiedService;
 
   public WorkUnitService() {
+    workUnitRegistry = WorkUnitRegistry.getInstance();
     variableSets = new ArrayList<>();
   }
 
@@ -120,11 +127,13 @@ public class WorkUnitService extends ServiceImp {
   @Override
   public void prepare() throws CoreException {
     try {
-      setProxiedService(
-          deserializeService(
-              WorkUnitURLStreamHandlerProvider.url(workUnitName, xmlConfigName() + XML_EXTENSION).openStream()
-              )
-          );
+      // Find the work unit jar URL and id and register them, for this work unit and register it so the workunit:workUnitName!/my-file can
+      // work in Interlok.
+      URL workUnitAdaptrisVersionUrl = WorkUnitDetector.findWorkUnitAdaptrisVersionUrl(workUnitName);
+      workUnitRegistry.register(getWorkUnitId(workUnitAdaptrisVersionUrl),
+          WorkUnitUrlUtils.stripJarUrlFilePath(workUnitAdaptrisVersionUrl));
+
+      setProxiedService(deserializeService(WorkUnitDetector.findWorkUnitFile(workUnitName, xmlConfigName() + XML_EXTENSION).openStream()));
       LifecycleHelper.prepare(getProxiedService());
     } catch (Exception expt) {
       throw ExceptionHelper.wrapCoreException(expt);
@@ -144,6 +153,7 @@ public class WorkUnitService extends ServiceImp {
   public void stop() {
     LifecycleHelper.stop(getProxiedService());
   }
+
   @Override
   protected void initService() throws CoreException {
     LifecycleHelper.init(getProxiedService());
@@ -152,6 +162,11 @@ public class WorkUnitService extends ServiceImp {
   @Override
   protected void closeService() {
     LifecycleHelper.close(getProxiedService());
+  }
+
+  private static String getWorkUnitId(URL url) {
+    Properties properties = PropertyHelper.loadQuietly(url);
+    return properties.getOrDefault("artifactId", WorkUnitUrlUtils.jarName(url.toString())).toString();
   }
 
 }

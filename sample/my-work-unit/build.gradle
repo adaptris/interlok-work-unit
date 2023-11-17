@@ -5,17 +5,16 @@ plugins {
 }
 
 ext {
-  releaseVersion = project.findProperty("releaseVersion") ?: "4.8-SNAPSHOT"
-  interlokVersion = project.findProperty("releaseVersion") ?: "4.8-SNAPSHOT"
+  releaseVersion = project.findProperty("releaseVersion") ?: "5.0-SNAPSHOT"
+  interlokVersion = project.findProperty("releaseVersion") ?: "5.0-SNAPSHOT"
   nexusBaseUrl = project.findProperty("nexusBaseUrl") ?: "https://nexus.adaptris.net/nexus"
-  mavenPublishUrl = project.findProperty("mavenPublishUrl") ?: nexusBaseUrl + "/content/repositories/snapshots"
   repoUsername = project.findProperty("repoUsername") ?: "set in gradle.properties"
   repoPassword = project.findProperty("repoPassword") ?: "set in gradle.properties"
 
-  componentName = "My Work Unit"
-  componentDesc = "My work unit that does something"
-  organizationName = "Adaptris Ltd"
-  organizationUrl = "http://interlok.adaptris.net"
+  componentName = project.findProperty("componentName") ?: project.name
+  componentDesc = project.findProperty("componentDesc") ?: project.name
+  organizationName = project.findProperty("organizationName") ?: project.name
+  organizationUrl = project.findProperty("organizationUrl") ?: ""
   
   interlokSourceConfig = "src/main/interlok/config"
 }
@@ -38,6 +37,8 @@ def versionDir = "$buildDir/version"
 startScripts.enabled = false
 
 jar {
+  from('README.md') {
+  }
   manifest {
     attributes("Built-By": System.getProperty("user.name"),
                "Build-Jdk": System.getProperty("java.version"),
@@ -79,20 +80,9 @@ publishing {
         asNode().appendNode("name", componentName)
         asNode().appendNode("description", componentDesc)
         def properties = asNode().appendNode("properties")
-        properties.appendNode("target", "4.0.0+")
+        properties.appendNode("target", "5.0.0+")
         properties.appendNode("license", "false")
-        properties.appendNode("readme", "https://raw.githubusercontent.com/adaptris-labs/interlok-work-units/develop/README.md")
-        properties.appendNode("repository", "https://github.com/adaptris-labs/interlok-work-units")
       }
-    }
-  }
-  repositories {
-    maven {
-      credentials {
-        username repoUsername
-        password repoPassword
-      }
-      url mavenPublishUrl
     }
   }
 }
