@@ -357,8 +357,8 @@ task deleteGeneratedFiles(type: Delete) {
 }
 
 spotbugsMain {
-  effort = "max"
-  reportLevel = "high"
+  effort = Effort.MAX
+  reportLevel = Confidence.HIGH
   reports {
     xml {
       required.set(false)
