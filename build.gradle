@@ -367,6 +367,7 @@ spotbugsMain {
       stylesheet = 'default.xsl'
     }
   }
+  excludeFilter = new File("$rootDir/gradle/spotbugs-exclude.xml")
 }
 
 dependencyCheck  {
