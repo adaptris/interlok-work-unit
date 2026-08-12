@@ -3,7 +3,7 @@ package com.adaptris.workunit.varsub;
 import java.io.InputStream;
 import java.util.Properties;
 
-import javax.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotBlank;
 
 import org.apache.commons.io.FilenameUtils;
 
