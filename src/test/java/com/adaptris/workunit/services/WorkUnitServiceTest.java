@@ -29,6 +29,13 @@ public class WorkUnitServiceTest extends ExampleServiceCase {
   }
 
   @Test
+  public void testPrepareWithCustomXmlConfigName() throws CoreException {
+    WorkUnitService service = newService();
+    service.setXmlConfigName("work-unit-custom");
+    assertService(service, "${value1}");
+  }
+
+  @Test
   public void testPrepareWithWorkUnitVarSet() throws CoreException {
     WorkUnitService service = newService();
     WorkUnitVariableSet variableSet = new WorkUnitVariableSet();

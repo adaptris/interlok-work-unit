@@ -3,6 +3,7 @@ package com.adaptris.workunit.util;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
@@ -28,14 +29,31 @@ public class WorkUnitDetailsUtils {
   }
 
   /**
-   * List all variable names in the work unit xml config file
+   * List all variable names across every XML config file in the work unit jar.
    *
    * @param workUnitName
-   * @return list of all variable names in a work unit xml
+   * @return array of all variable names found in every XML config file in the work unit
    * @throws IOException
    * @throws URISyntaxException
    */
-  public static String[] listVars(String workUnitName, String xmlConfigName) throws IOException, URISyntaxException {
+  public static String[] listVars(String workUnitName) throws IOException, URISyntaxException {
+    URL workUnitUrl = WorkUnitUrlUtils.toFileURL(WorkUnitDetector.findWorkUnitAdaptrisVersionUrl(workUnitName));
+    try (JarFile jarFile = new JarFile(new File(workUnitUrl.toURI()))) {
+      Set<String> variables = jarFile.stream().filter(WorkUnitDetailsUtils::isXmlConfig).flatMap(e -> findVariables(jarFile, e).stream())
+          .collect(Collectors.toSet());
+      return variables.toArray(new String[] {});
+    }
+  }
+
+  /**
+   * List all variable names in the named work unit xml config file.
+   *
+   * @param workUnitName
+   * @param xmlConfigName
+   * @return array of all variable names in the named work unit XML file
+   * @throws IOException
+   */
+  public static String[] listVars(String workUnitName, String xmlConfigName) throws IOException {
     String xml = fileContent(workUnitName, xmlConfigName);
 
     Set<String> variables = findVariables(xml);
@@ -47,18 +65,18 @@ public class WorkUnitDetailsUtils {
    * List all variable properties file names (potential variable properties) in a work unit
    *
    * @param workUnitName
-   * @return list of all variable properties file names in a work unit
+   * @return array of all variable properties file names in a work unit
    * @throws IOException
    * @throws URISyntaxException
    */
   public static String[] listVarProperties(String workUnitName) throws IOException, URISyntaxException {
     URL workUnitUrl = WorkUnitUrlUtils.toFileURL(WorkUnitDetector.findWorkUnitAdaptrisVersionUrl(workUnitName));
-    JarFile jarFile = new JarFile(new File(workUnitUrl.toURI()));
+    try (JarFile jarFile = new JarFile(new File(workUnitUrl.toURI()))) {
+      Set<String> variableProperties = jarFile.stream().filter(WorkUnitDetailsUtils::isVariableProperties).map(WorkUnitDetailsUtils::stripProperties)
+          .collect(Collectors.toSet());
 
-    Set<String> variableProperties = jarFile.stream().filter(e -> isVariableProperties(e)).map(e -> stripProperties(e))
-        .collect(Collectors.toSet());
-
-    return variableProperties.toArray(new String[] {});
+      return variableProperties.toArray(new String[] {});
+    }
   }
 
   /**
@@ -68,9 +86,8 @@ public class WorkUnitDetailsUtils {
    * @param workUnitName
    * @return Readme markdown content
    * @throws IOException
-   * @throws URISyntaxException
    */
-  public static String[] readme(String workUnitName) throws IOException, URISyntaxException {
+  public static String[] readme(String workUnitName) throws IOException {
     String xml = null;
     try {
       xml = fileContent(workUnitName, "README.md");
@@ -97,6 +114,18 @@ public class WorkUnitDetailsUtils {
       variables.add(m.group(1));
     }
     return variables;
+  }
+
+  private static Set<String> findVariables(JarFile jarFile, JarEntry jarEntry) {
+    try (InputStream inputStream = jarFile.getInputStream(jarEntry)) {
+      return findVariables(IOUtils.toString(inputStream, StandardCharsets.UTF_8));
+    } catch (IOException ex) {
+      throw new RuntimeException(ex);
+    }
+  }
+
+  private static boolean isXmlConfig(JarEntry jarEntry) {
+    return !jarEntry.isDirectory() && jarEntry.getName().endsWith(".xml");
   }
 
   private static String fileContent(String workUnitName, String xmlConfigName) throws IOException {

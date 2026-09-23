@@ -141,7 +141,7 @@ public class WorkUnitService extends ServiceImp {
   }
 
   private String xmlConfigName() {
-    return StringUtils.defaultIfBlank(DEFAULT_XML_NAME, getXmlConfigName());
+    return StringUtils.defaultIfBlank(getXmlConfigName(), DEFAULT_XML_NAME);
   }
 
   @Override

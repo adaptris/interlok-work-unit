@@ -17,6 +17,12 @@ public class WorkUnitDetailsUtilsTest {
   }
 
   @Test
+  public void testListVarsAcrossXmlFiles() throws Exception {
+    String[] variables = WorkUnitDetailsUtils.listVars("my-work-unit");
+    assertEquals(3, variables.length);
+  }
+
+  @Test
   public void testListVarsWrongJarName() throws Exception {
     assertThrows(NoSuchElementException.class, () -> WorkUnitDetailsUtils.listVars("wrong-work-unit", "work-unit.xml"));
   }

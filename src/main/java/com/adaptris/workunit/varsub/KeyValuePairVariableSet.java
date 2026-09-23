@@ -24,12 +24,11 @@ public class KeyValuePairVariableSet implements VariableSet {
   /**
    * Set of key / value variables to use in the work unit variables substitution. The 'key' should match the ${key} to replace in the work
    * unit XML with the 'value'. <br>
-   * The {@link WorkUnitService#getWorkUnitName()} and {@link WorkUnitService#getXmlConfigName()} will be used to find the list of variable
-   * in the work unit xml.
+   * The work unit name will be used to find the list of variables across all XML config files in the work unit.
    */
   @Valid
   @NotNull
-  @InputFieldHint(style = "com.adaptris.workunit.util.WorkUnitDetailsUtils#listVars(workUnitName,xmlConfigName)")
+  @InputFieldHint(style = "com.adaptris.workunit.util.WorkUnitDetailsUtils#listVars(workUnitName)")
   @Getter
   @Setter
   @NonNull
