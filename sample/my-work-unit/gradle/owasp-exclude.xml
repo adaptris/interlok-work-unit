@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<suppressions xmlns="https://jeremylong.github.io/DependencyCheck/dependency-suppression.1.3.xsd">
+  <suppress>
+    <notes><![CDATA[
+      CVE-2025-48924 affects commons-lang 2.0 through 2.6, inherited through interlok-json/json-lib.
+      Advisory: https://github.com/advisories/GHSA-j288-q9x7-2f5v
+      There is no patched Commons Lang 2.x release. The fix is in commons-lang3 3.18.0 or later,
+      which changes the artifact, major version and package names and cannot replace json-lib's dependency.
+      Accepted risk: untrusted class names reaching ClassUtils.getClass can exhaust the stack and cause denial of service.
+      Revisit when interlok-json replaces its legacy JSON-lib dependency.
+    ]]></notes>
+    <packageUrl>pkg:maven/commons-lang/commons-lang@2.6</packageUrl>
+    <cve>CVE-2025-48924</cve>
+  </suppress>
+  <suppress>
+    <notes><![CDATA[
+      CVE-2024-47855 affects net.sf.json-lib:json-lib through 2.4, inherited through interlok-json.
+      Advisory: https://github.com/advisories/GHSA-wwcp-26wc-3fxm
+      No patched net.sf.json-lib 2.x release exists. The maintained org.kordamp.json:json-lib-core fork
+      fixes this in 3.1.0, requiring an artifact and major-version migration outside this dependency-only change.
+      Accepted risk: malicious JSON containing an unbalanced comment can exhaust parser resources and cause denial of service.
+      Revisit when interlok-json migrates to a maintained JSON parser.
+    ]]></notes>
+    <packageUrl>pkg:maven/net.sf.json-lib/json-lib@2.4</packageUrl>
+    <cve>CVE-2024-47855</cve>
+  </suppress>
+</suppressions>

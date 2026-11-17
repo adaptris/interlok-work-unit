@@ -5,8 +5,9 @@ plugins {
 }
 
 ext {
-  releaseVersion = project.findProperty("releaseVersion") ?: "5.0-SNAPSHOT"
-  interlokVersion = project.findProperty("releaseVersion") ?: "5.0-SNAPSHOT"
+  interlokCatalogVersion = project.findProperty('interlokCatalogVersion') ?: '5.0-SNAPSHOT'
+  interlokCatalogPlatform = "com.adaptris:interlok-version-catalog:${interlokCatalogVersion}"
+  releaseVersion = project.findProperty("releaseVersion") ?: interlokCatalogVersion
   nexusBaseUrl = project.findProperty("nexusBaseUrl") ?: "https://nexus.adaptris.net/nexus"
   repoUsername = project.findProperty("repoUsername") ?: "set in gradle.properties"
   repoPassword = project.findProperty("repoPassword") ?: "set in gradle.properties"
@@ -26,9 +27,18 @@ repositories {
 }
 
 dependencies {
-  implementation ("com.adaptris:interlok-json:$interlokVersion") { changing=true }
-  implementation ("com.adaptris:interlok-csv:$interlokVersion") { changing=true }
-  implementation ("com.adaptris:interlok-csv-json:$interlokVersion") { changing=true }
+  api platform(interlokCatalogPlatform)
+  implementation platform(interlokCatalogPlatform)
+  compileOnly platform(interlokCatalogPlatform)
+  annotationProcessor platform(interlokCatalogPlatform)
+  testImplementation platform(interlokCatalogPlatform)
+  testCompileOnly platform(interlokCatalogPlatform)
+  testRuntimeOnly platform(interlokCatalogPlatform)
+  testAnnotationProcessor platform(interlokCatalogPlatform)
+
+  implementation ("com.adaptris:interlok-json") { changing=true }
+  implementation ("com.adaptris:interlok-csv") { changing=true }
+  implementation ("com.adaptris:interlok-csv-json") { changing=true }
 }
 
 group   = "com.adaptris"
